@@ -5,13 +5,13 @@ import { categories } from '@/lib/products';
 import { useRef } from 'react';
 
 const displayCategories = [
-  { name: 'Prince Coat', slug: 'prince-coat', isDark: false },
-  { name: 'Pent Coat', slug: 'pent-coat', isDark: false },
-  { name: 'Sherwani', slug: 'sherwani', isDark: true },
-  { name: 'Fabric', slug: 'unstitched', isDark: true },
-  { name: 'Shalwar Kameez', slug: 'shalwar-kameez', isDark: false },
-  { name: 'Waistcoat', slug: 'waistcoat', isDark: false },
-  { name: 'Accessories', slug: 'accessories', isDark: false },
+  { name: 'Prince Coat', slug: 'prince-coat', isDark: false, image: null },
+  { name: 'Pent Coat', slug: 'pent-coat', isDark: false, image: null },
+  { name: 'Sherwani', slug: 'sherwani', isDark: true, image: '/images/categories/sherwani.jpg' },
+  { name: 'Fabric', slug: 'unstitched', isDark: true, image: null },
+  { name: 'Shalwar Kameez', slug: 'shalwar-kameez', isDark: false, image: null },
+  { name: 'Waistcoat', slug: 'waistcoat', isDark: false, image: null },
+  { name: 'Accessories', slug: 'accessories', isDark: false, image: null },
 ];
 
 export default function CategorySection() {
