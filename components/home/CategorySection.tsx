@@ -7,7 +7,7 @@ import { useRef } from 'react';
 const displayCategories = [
   { name: 'Prince Coat', slug: 'prince-coat', isDark: false, image: null },
   { name: 'Pent Coat', slug: 'pent-coat', isDark: false, image: null },
-  { name: 'Sherwani', slug: 'sherwani', isDark: true, image: '/images/categories/sherwani.jpg' },
+  { name: 'Sherwani', slug: 'sherwani', isDark: true, image: '/images/categories/sherwani.png' },
   { name: 'Fabric', slug: 'unstitched', isDark: true, image: null },
   { name: 'Shalwar Kameez', slug: 'shalwar-kameez', isDark: false, image: null },
   { name: 'Waistcoat', slug: 'waistcoat', isDark: false, image: null },
@@ -120,16 +120,29 @@ export default function CategorySection() {
                   transition: 'transform 0.3s ease',
                 }}
               >
-                <span
-                  style={{
-                    fontFamily: 'Cormorant Garamond, serif',
-                    fontSize: '11px',
-                    letterSpacing: '0.1em',
-                    color: cat.isDark ? '#5a5a5a' : '#b0a9a0',
-                  }}
-                >
-                  Image
-                </span>
+                {cat.image ? (
+                  <img
+                    src={cat.image}
+                    alt={cat.name}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      objectPosition: 'top',
+                    }}
+                  />
+                ) : (
+                  <span
+                    style={{
+                      fontFamily: 'Cormorant Garamond, serif',
+                      fontSize: '11px',
+                      letterSpacing: '0.1em',
+                      color: cat.isDark ? '#5a5a5a' : '#b0a9a0',
+                    }}
+                  >
+                    Image
+                  </span>
+                )}
               </div>
               <p
                 style={{
