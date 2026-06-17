@@ -1,44 +1,47 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function Preloader() {
     const topRef = useRef<HTMLDivElement>(null);
     const bottomRef = useRef<HTMLDivElement>(null);
     const logoRef = useRef<HTMLImageElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
+    const [visible, setVisible] = useState(true);
 
     useEffect(() => {
+        // Lock scroll during preloader
+        document.body.style.overflow = 'hidden';
+
         const top = topRef.current;
         const bottom = bottomRef.current;
         const logo = logoRef.current;
         const wrapper = wrapperRef.current;
         if (!top || !bottom || !logo || !wrapper) return;
 
-        // Phase 1: Logo zoom in (0 - 1.8s)
         setTimeout(() => {
             logo.style.transform = 'scale(1)';
             logo.style.opacity = '1';
         }, 100);
 
-        // Phase 2: Logo fade out (1.8s)
         setTimeout(() => {
             logo.style.opacity = '0';
             logo.style.transform = 'scale(1.1)';
         }, 1800);
 
-        // Phase 3: Split reveal (2.1s)
         setTimeout(() => {
             top.style.transform = 'translateY(-100%)';
             bottom.style.transform = 'translateY(100%)';
         }, 2100);
 
-        // Phase 4: Remove from DOM (3s)
         setTimeout(() => {
-            wrapper.style.display = 'none';
+            document.body.style.overflow = '';
+            setVisible(false);
         }, 3000);
 
     }, []);
+
+    if (!visible) return null;
 
     return (
         <div
@@ -47,7 +50,7 @@ export default function Preloader() {
                 position: 'fixed',
                 inset: 0,
                 zIndex: 999999,
-                pointerEvents: 'none',
+                pointerEvents: 'all',
             }}
         >
             {/* Top half */}
