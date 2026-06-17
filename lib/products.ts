@@ -1078,3 +1078,4 @@ export function getCategoryBySlug(slug: string): Category | undefined {
 export function formatPrice(price: number): string {
   return `Rs. ${price.toLocaleString('en-PK')}`;
 }
+
