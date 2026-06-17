@@ -9,12 +9,12 @@ interface ProductCardProps {
 export default function ProductCard({ product, width = '100%' }: ProductCardProps) {
   const isDark = product.id.includes('dark') ||
     ['sh-001', 'sh-003', 'sh-005', 'sh-007',
-     'wc-002', 'wc-004', 'wc-006', 'wc-008',
-     'pc-002', 'pc-004', 'pc-006', 'pc-008',
-     'pec-001', 'pec-003', 'pec-005', 'pec-007',
-     'sk-004', 'sk-006', 'sk-008',
-     'un-002', 'un-004', 'un-006', 'un-008',
-     'ac-002', 'ac-004', 'ac-006', 'ac-008'].includes(product.id);
+      'wc-002', 'wc-004', 'wc-006', 'wc-008',
+      'pc-002', 'pc-004', 'pc-006', 'pc-008',
+      'pec-001', 'pec-003', 'pec-005', 'pec-007',
+      'sk-004', 'sk-006', 'sk-008',
+      'un-002', 'un-004', 'un-006', 'un-008',
+      'ac-002', 'ac-004', 'ac-006', 'ac-008'].includes(product.id);
 
   return (
     <Link
@@ -30,13 +30,12 @@ export default function ProductCard({ product, width = '100%' }: ProductCardProp
         {/* Badge */}
         {product.badge && (
           <span
-            className={`product-badge ${
-              product.badge === 'NEW IN'
-                ? 'badge-new'
-                : product.badge === 'PREMIUM'
+            className={`product-badge ${product.badge === 'NEW IN'
+              ? 'badge-new'
+              : product.badge === 'PREMIUM'
                 ? 'badge-premium'
                 : 'badge-sale'
-            }`}
+              }`}
           >
             {product.badge}
           </span>
@@ -54,17 +53,30 @@ export default function ProductCard({ product, width = '100%' }: ProductCardProp
             overflow: 'hidden',
           }}
         >
-          <span
-            style={{
-              fontFamily: 'Cormorant Garamond, serif',
-              fontSize: '11px',
-              letterSpacing: '0.1em',
-              color: isDark ? '#5a5a5a' : '#b0a9a0',
-              textTransform: 'uppercase',
-            }}
-          >
-            Product Image
-          </span>
+          {product.images && product.images[0] && !product.images[0].includes('placeholder') ? (
+            <img
+              src={product.images[0]}
+              alt={product.name}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'top',
+              }}
+            />
+          ) : (
+            <span
+              style={{
+                fontFamily: 'Cormorant Garamond, serif',
+                fontSize: '11px',
+                letterSpacing: '0.1em',
+                color: isDark ? '#5a5a5a' : '#b0a9a0',
+                textTransform: 'uppercase',
+              }}
+            >
+              Product Image
+            </span>
+          )}
 
           {/* Hover overlay */}
           <div className="product-image-overlay">
