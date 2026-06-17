@@ -5,13 +5,13 @@ import { categories } from '@/lib/products';
 import { useRef } from 'react';
 
 const displayCategories = [
-  { name: 'Prince Coat', slug: 'prince-coat', isDark: false, image: null },
-  { name: 'Pent Coat', slug: 'pent-coat', isDark: false, image: null },
+  { name: 'Prince Coat', slug: 'prince-coat', isDark: false, image: '/images/categories/prince-coat.png' },
+  { name: 'Pent Coat', slug: 'pent-coat', isDark: false, image: '/images/categories/pent-coat.png' },
   { name: 'Sherwani', slug: 'sherwani', isDark: true, image: '/images/categories/sherwani.png' },
-  { name: 'Fabric', slug: 'unstitched', isDark: true, image: null },
-  { name: 'Shalwar Kameez', slug: 'shalwar-kameez', isDark: false, image: null },
-  { name: 'Waistcoat', slug: 'waistcoat', isDark: false, image: null },
-  { name: 'Accessories', slug: 'accessories', isDark: false, image: null },
+  { name: 'Unstitched', slug: 'unstitched', isDark: true, image: '/images/categories/fabric.png' },
+  { name: 'Shalwar Kameez', slug: 'shalwar-kameez', isDark: false, image: '/images/categories/shalwar-kameez.png' },
+  { name: 'Waistcoat', slug: 'waistcoat', isDark: false, image: '/images/categories/waistcoat.png' },
+  { name: 'Accessories', slug: 'accessories', isDark: false, image: '/images/categories/accessories.png' },
 ];
 
 export default function CategorySection() {
