@@ -111,6 +111,7 @@ export default function ProductClient({ product, relatedProducts }: Props) {
 
           {/* Images */}
           <div>
+            {/* Main Image */}
             <div style={{
               aspectRatio: '3/4',
               backgroundColor: isDark ? '#2d2d2d' : '#e8e0d5',
@@ -119,10 +120,11 @@ export default function ProductClient({ product, relatedProducts }: Props) {
               justifyContent: 'center',
               marginBottom: '8px',
               position: 'relative',
+              overflow: 'hidden',
             }}>
               {product.badge && (
                 <span style={{
-                  position: 'absolute', top: '14px', left: '14px',
+                  position: 'absolute', top: '14px', left: '14px', zIndex: 1,
                   backgroundColor: product.badge === 'SALE' ? '#c41e1e' : '#1a1a1a',
                   color: '#fff', fontFamily: 'Cormorant Garamond, serif',
                   fontSize: '10px', letterSpacing: '0.1em', padding: '4px 10px',
@@ -131,24 +133,53 @@ export default function ProductClient({ product, relatedProducts }: Props) {
                   {product.badge}
                 </span>
               )}
-              <span style={{
-                fontFamily: 'Cormorant Garamond, serif', fontSize: '13px',
-                color: isDark ? '#4a4a4a' : '#b0a9a0',
-                letterSpacing: '0.1em', textTransform: 'uppercase',
-              }}>
-                Product Image
-              </span>
+              {product.images && product.images[imageIndex] && !product.images[imageIndex].includes('placeholder') ? (
+                <img
+                  src={product.images[imageIndex]}
+                  alt={`${product.name} - image ${imageIndex + 1}`}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'top',
+                  }}
+                />
+              ) : (
+                <span style={{
+                  fontFamily: 'Cormorant Garamond, serif', fontSize: '13px',
+                  color: isDark ? '#4a4a4a' : '#b0a9a0',
+                  letterSpacing: '0.1em', textTransform: 'uppercase',
+                }}>
+                  Product Image
+                </span>
+              )}
             </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              {[0, 1, 2].map((i) => (
-                <div key={i} onClick={() => setImageIndex(i)} style={{
-                  width: '72px', aspectRatio: '3/4', cursor: 'pointer',
-                  backgroundColor: i === 1 ? (isDark ? '#3d3d3d' : '#ddd6cb') : (isDark ? '#2d2d2d' : '#e8e0d5'),
-                  border: imageIndex === i ? '2px solid #1a1a1a' : '2px solid transparent',
-                  transition: 'border-color 0.2s ease',
-                }} />
-              ))}
-            </div>
+
+            {/* Thumbnails — only show if product has multiple real images */}
+            {product.images && product.images.filter(img => !img.includes('placeholder')).length > 1 && (
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {product.images.filter(img => !img.includes('placeholder')).map((img, i) => (
+                  <div
+                    key={i}
+                    onClick={() => setImageIndex(i)}
+                    style={{
+                      width: '72px', aspectRatio: '3/4', cursor: 'pointer',
+                      backgroundColor: isDark ? '#2d2d2d' : '#e8e0d5',
+                      border: imageIndex === i ? '2px solid #1a1a1a' : '2px solid transparent',
+                      transition: 'border-color 0.2s ease',
+                      overflow: 'hidden',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <img
+                      src={img}
+                      alt={`${product.name} thumbnail ${i + 1}`}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Product Info */}
