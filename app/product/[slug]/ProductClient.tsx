@@ -16,9 +16,23 @@ interface Props {
   relatedProducts: Product[];
 }
 
+// Add-on options by category
+const ADDONS = {
+  sherwani: [
+    { id: 'turban', name: 'Turban', price: 3500 },
+    { id: 'khussa', name: 'Khussa', price: 2500 },
+  ],
+  'prince-coat': [
+    { id: 'shoes', name: 'With Shoes', price: 3000 },
+    { id: 'inner-suit', name: 'With Inner Suit', price: 4500 },
+    { id: 'complete-set', name: 'Complete Set', price: 7000 },
+  ],
+};
+
 export default function ProductClient({ product, relatedProducts }: Props) {
   const router = useRouter();
   const [selectedSize, setSelectedSize] = useState('');
+  const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [addedToBag, setAddedToBag] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('details');
@@ -32,31 +46,59 @@ export default function ProductClient({ product, relatedProducts }: Props) {
     'un-002', 'un-004', 'un-006', 'un-008',
     'ac-002', 'ac-004', 'ac-006', 'ac-008'].includes(product.id);
 
+  // Check if product is Unstitched/Fabric
+  const isUnstitched = product.category === 'Unstitched' || product.categorySlug === 'unstitched';
+
+  // Check product category for add-ons
+  const isSherwani = product.category === 'Sherwani' || product.categorySlug === 'sherwani';
+  const isPrinceCoat = product.category === 'Prince Coat' || product.categorySlug === 'prince-coat';
+  const hasAddons = isSherwani || isPrinceCoat;
+  const productAddons = isSherwani ? ADDONS.sherwani : isPrinceCoat ? ADDONS['prince-coat'] : [];
+
+  const toggleAddon = (addonId: string) => {
+    setSelectedAddons(prev =>
+      prev.includes(addonId)
+        ? prev.filter(id => id !== addonId)
+        : [...prev, addonId]
+    );
+  };
+
+  const calculateTotal = () => {
+    let total = product.price;
+    selectedAddons.forEach(addonId => {
+      const addon = productAddons.find(a => a.id === addonId);
+      if (addon) total += addon.price;
+    });
+    return total;
+  };
+
   const handleAddToBag = async () => {
     if (!selectedSize) { alert('Please select a size'); return; }
 
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      const addonsList = productAddons
+        .filter(a => selectedAddons.includes(a.id))
+        .map(a => a.name)
+        .join(', ');
+
+      const cartItem = {
+        product_id: product.id,
+        product_name: product.name,
+        product_price: calculateTotal(),
+        size: selectedSize,
+        quantity: 1,
+        addons: addonsList || undefined,
+        product_image: product.images?.[0] || '',
+      };
 
       if (user) {
-        await addToCart(user.id, {
-          product_id: product.id,
-          product_name: product.name,
-          product_price: product.price,
-          size: selectedSize,
-          quantity: 1,
-        });
+        await addToCart(user.id, cartItem);
         setAddedToBag(true);
         setTimeout(() => setAddedToBag(false), 2000);
       } else {
-        addToLocalCart({
-          product_id: product.id,
-          product_name: product.name,
-          product_price: product.price,
-          size: selectedSize,
-          quantity: 1,
-        });
+        addToLocalCart(cartItem);
         router.push('/cart');
       }
     } catch (err) {
@@ -155,7 +197,7 @@ export default function ProductClient({ product, relatedProducts }: Props) {
               )}
             </div>
 
-            {/* Thumbnails — only show if product has multiple real images */}
+            {/* Thumbnails */}
             {product.images && product.images.filter(img => !img.includes('placeholder')).length > 1 && (
               <div style={{ display: 'flex', gap: '8px' }}>
                 {product.images.filter(img => !img.includes('placeholder')).map((img, i) => (
@@ -206,7 +248,7 @@ export default function ProductClient({ product, relatedProducts }: Props) {
                 fontFamily: 'Cormorant Garamond, serif', fontSize: '22px',
                 fontWeight: 500, color: product.discount ? '#c41e1e' : '#1a1a1a',
               }}>
-                {formatPrice(product.price)}
+                {formatPrice(calculateTotal())}
               </span>
               {product.originalPrice && (
                 <>
@@ -217,6 +259,17 @@ export default function ProductClient({ product, relatedProducts }: Props) {
                     {product.discount}% OFF
                   </span>
                 </>
+              )}
+              {selectedAddons.length > 0 && (
+                <span style={{
+                  fontFamily: 'Cormorant Garamond, serif',
+                  fontSize: '12px',
+                  color: '#5a5a5a',
+                  backgroundColor: '#f0ebe5',
+                  padding: '2px 8px',
+                }}>
+                  +{selectedAddons.length} add-on{selectedAddons.length > 1 ? 's' : ''}
+                </span>
               )}
             </div>
 
@@ -236,17 +289,24 @@ export default function ProductClient({ product, relatedProducts }: Props) {
                   fontFamily: 'Cormorant Garamond, serif', fontSize: '12px',
                   letterSpacing: '0.12em', textTransform: 'uppercase', color: '#1a1a1a',
                 }}>
-                  Size: <span style={{ fontWeight: 400, color: '#5a5a5a' }}>{selectedSize || 'Select a size'}</span>
+                  {isUnstitched ? 'Length: ' : 'Size: '}
+                  <span style={{ fontWeight: 400, color: '#5a5a5a' }}>{selectedSize || (isUnstitched ? 'Select length' : 'Select a size')}</span>
                 </p>
-                <Link href="/size-guide" style={{
-                  fontFamily: 'Cormorant Garamond, serif', fontSize: '12px',
-                  color: '#8a8a8a', textDecoration: 'underline',
-                }}>
-                  Size Guide
-                </Link>
+                {/* Size Guide link — ONLY for Unstitched products */}
+                {isUnstitched && (
+                  <Link href="/size-guide" style={{
+                    fontFamily: 'Cormorant Garamond, serif', fontSize: '12px',
+                    color: '#8a8a8a', textDecoration: 'underline',
+                  }}>
+                    Size Guide
+                  </Link>
+                )}
               </div>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {['S', 'M', 'L', 'XL', 'XXL'].map((size) => (
+                {(isUnstitched
+                  ? ['0.5M', '1M', '1.5M', '2M', '3M', '4M', '5M']
+                  : ['S', 'M', 'L', 'XL', 'XXL']
+                ).map((size) => (
                   <button key={size} onClick={() => setSelectedSize(size)} style={{
                     fontFamily: 'Cormorant Garamond, serif', fontSize: '13px',
                     minWidth: '52px', height: '44px', padding: '0 12px',
@@ -260,6 +320,68 @@ export default function ProductClient({ product, relatedProducts }: Props) {
                 ))}
               </div>
             </div>
+
+            {/* Add-ons Section */}
+            {hasAddons && (
+              <div style={{ marginBottom: '24px' }}>
+                <p style={{
+                  fontFamily: 'Cormorant Garamond, serif', fontSize: '12px',
+                  letterSpacing: '0.12em', textTransform: 'uppercase', color: '#1a1a1a',
+                  marginBottom: '12px',
+                }}>
+                  Add-ons: <span style={{ fontWeight: 400, color: '#5a5a5a' }}>Optional</span>
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {productAddons.map((addon) => (
+                    <label
+                      key={addon.id}
+                      onClick={() => toggleAddon(addon.id)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '12px 16px',
+                        border: selectedAddons.includes(addon.id) ? '1.5px solid #1a1a1a' : '1px solid #d5cdc4',
+                        background: selectedAddons.includes(addon.id) ? '#faf8f5' : 'transparent',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{
+                          width: '18px',
+                          height: '18px',
+                          border: selectedAddons.includes(addon.id) ? '2px solid #1a1a1a' : '2px solid #d5cdc4',
+                          background: selectedAddons.includes(addon.id) ? '#1a1a1a' : 'transparent',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          transition: 'all 0.2s ease',
+                        }}>
+                          {selectedAddons.includes(addon.id) && (
+                            <span style={{ color: '#fff', fontSize: '11px' }}>✓</span>
+                          )}
+                        </div>
+                        <span style={{
+                          fontFamily: 'Cormorant Garamond, serif',
+                          fontSize: '14px',
+                          color: '#1a1a1a',
+                        }}>
+                          {addon.name}
+                        </span>
+                      </div>
+                      <span style={{
+                        fontFamily: 'Cormorant Garamond, serif',
+                        fontSize: '14px',
+                        color: '#5a5a5a',
+                      }}>
+                        +{formatPrice(addon.price)}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Add to Bag */}
             <button onClick={handleAddToBag} disabled={loading} style={{
